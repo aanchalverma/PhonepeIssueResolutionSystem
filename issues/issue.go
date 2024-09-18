@@ -19,6 +19,7 @@ type Issue struct {
 	Email        string
 	AgentHandled string
 	Status       string
+	Resolution   string
 }
 
 var Issues []Issue
@@ -29,13 +30,13 @@ func AddIssue(issue Issue) {
 	fmt.Println("Issue", issue.TransactionId, "added to the queue")
 }
 
-func FindIssueWithTransactionId(transactionId string) (Issue, bool) {
+func FindIssueWithTransactionId(transactionId string) (*Issue, bool) {
 	for _, issue := range Issues {
 		if issue.TransactionId == transactionId {
-			return issue, true
+			return &issue, true
 		}
 	}
-	return Issue{}, false
+	return &Issue{}, false
 }
 
 func GetIssue(filter string) {
@@ -54,6 +55,18 @@ func GetIssue(filter string) {
 		}
 	}
 	if !found {
-		fmt.Println("Could not find the issue", filter)
+		fmt.Errorf("Could not find the issue %s", filter)
+	}
+}
+
+func UpdateIssue(transactionId string, status string, resolution string) {
+	issueToBeUpdated, ifIssueFound := FindIssueWithTransactionId(transactionId)
+	if !ifIssueFound {
+		fmt.Errorf("Issue with id %s could not be found", transactionId)
+	} else {
+		issueToBeUpdated.Status = status
+		issueToBeUpdated.Resolution = resolution
+		fmt.Printf("Issue with id %s has been successfully updated with status - %s and resolution - %s", transactionId, status, resolution)
+		fmt.Println()
 	}
 }

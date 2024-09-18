@@ -17,11 +17,17 @@ func main() {
 
 	// Assign a given issue to first available agent
 	agents.AssignIssue("T1")
+	fmt.Println("agent his", agents.AgentsOccupied)
 
 	// Issue against a filter
 	issues.GetIssue("T1")
 
-	// TODO: Implement updateIssues()
-	// TODO: Implement resolveIssues()
+	// Update issue with status and resolution
+	issues.UpdateIssue("T1", "Resolved", "Able to access now")
+
+	// Resolve an issue
+	agents.ResolveIssue("T1", "Able to access now")
+
 	// TODO: Implement viewAgentsWorkHistory()
+	agents.ViewAgentsWorkHistory("Tushar")
 }

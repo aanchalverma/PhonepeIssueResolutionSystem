@@ -53,6 +53,7 @@ func AssignIssue(transactionId string) {
 					// TODO: Change this to pass by reference to update the actual issue object
 					issueToBeResolved.AgentHandled = agentAssigned.AgentName
 					issueToBeResolved.Status = "Resolving"
+					agent.WorkHistory = append(agent.WorkHistory, *issueToBeResolved)
 					break
 				}
 			}
@@ -66,5 +67,71 @@ func AssignIssue(transactionId string) {
 		} else {
 			fmt.Println("Agent", agentAssigned.AgentName, "has been assigned for the issue", transactionId)
 		}
+	}
+}
+
+func ViewAgentsWorkHistory(agentName string) {
+	found := false
+	for _, agent := range Agents {
+		if agent.AgentName == agentName {
+			if len(agent.WorkHistory) == 0 {
+				fmt.Println("No work history found for agent", agentName)
+				found = true
+				break
+			}
+			fmt.Printf("Here's the work history of agent %s", agentName)
+			for _, workhistory := range agent.WorkHistory {
+				fmt.Println(workhistory.IssueType)
+				fmt.Println(workhistory.Subject)
+				fmt.Println(workhistory.Description)
+				fmt.Println(workhistory.AgentHandled)
+				fmt.Println(workhistory.Status)
+				fmt.Println(workhistory.Resolution)
+				found = true
+				break
+			}
+		}
+	}
+
+	for _, agent := range AgentsOccupied {
+		if agent.AgentName == agentName {
+			if len(agent.WorkHistory) == 0 {
+				fmt.Println("No work history found for agent", agentName)
+				found = true
+				break
+			}
+			fmt.Printf("Here's the work history of agent %s", agentName)
+			for _, workhistory := range agent.WorkHistory {
+				fmt.Println(workhistory.IssueType)
+				fmt.Println(workhistory.Subject)
+				fmt.Println(workhistory.Description)
+				fmt.Println(workhistory.AgentHandled)
+				fmt.Println(workhistory.Status)
+				fmt.Println(workhistory.Resolution)
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		fmt.Println("No agent found with name", agentName)
+	}
+}
+
+func ResolveIssue(transactionId string, resolution string) {
+	issueToBeUpdated, ifIssueFound := issues.FindIssueWithTransactionId(transactionId)
+	if !ifIssueFound {
+		fmt.Errorf("Issue with id %s could not be found", transactionId)
+	} else {
+		issueToBeUpdated.Status = "Resolved"
+		issueToBeUpdated.Resolution = resolution
+		for _, agent := range AgentsOccupied {
+			if agent.AgentName == issueToBeUpdated.AgentHandled {
+				// Put agent back in the queue
+				Agents = append(Agents, AgentAvailable(agent))
+			}
+		}
+		fmt.Printf("Issue with id %s has been successfully resolved with resolution - %s", transactionId, resolution)
+		fmt.Println()
 	}
 }
